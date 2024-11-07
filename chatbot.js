@@ -1,61 +1,83 @@
-// chatbot.js
-
 (function() {
-    const chatbotURL = "https://talkbot-alpha.vercel.app"; // Replace with your hosted React app URL
+    // Create and style the container div
+    const container = document.createElement('div');
+    container.id = 'chatbot-widget-container';
+    container.style.position = 'fixed';
+    container.style.bottom = '20px';
+    container.style.right = '20px';
+    container.style.width = '60px';
+    container.style.height = '60px';
+    container.style.borderRadius = '50%';
+    container.style.overflow = 'hidden';
+    container.style.cursor = 'pointer';
+    container.style.transition = 'all 0.3s ease';
+    container.style.boxShadow = '0px 4px 10px rgba(0, 0, 0, 0.2)';
+    container.style.zIndex = '9999';
+    document.body.appendChild(container);
   
-    // Create the style element
-    const style = document.createElement('style');
-    style.innerHTML = `
-      #chatbot-frame {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        height: 400px;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        z-index: 10000;
-      }
-      #chatbot-close-btn {
-        position: fixed;
-        bottom: 440px;
-        right: 20px;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background-color: #ff5f5f;
-        color: #fff;
-        border: none;
-        font-size: 16px;
-        cursor: pointer;
-        z-index: 10001;
-        text-align: center;
-        line-height: 24px;
-      }
-    `;
-  
-    // Append the style to the document head
-    document.head.appendChild(style);
-  
-    // Create the iframe
+    // Create the iframe and insert it inside the container
     const iframe = document.createElement('iframe');
-    iframe.src = chatbotURL;
-    iframe.id = 'chatbot-frame';
+    iframe.src = "https://thriving-kitten-bf4f11.netlify.app/";  // Replace with your actual iframe URL
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.transition = 'all 0.3s ease';
+    container.appendChild(iframe);
   
-    // Append the iframe to the document body
-    document.body.appendChild(iframe);
+    // Initial state: Minimized (small circle)
+    let isMinimized = true;
+    let isFullscreen = false;
   
-    // Create the close button
-    const closeButton = document.createElement('button');
-    closeButton.id = 'chatbot-close-btn';
-    closeButton.innerText = '×';
-    closeButton.onclick = () => {
-      iframe.style.display = 'none';
-      closeButton.style.display = 'none';
+    // Function to expand the widget (to chatbot size)
+    const expandWidget = () => {
+      container.style.width = '350px';
+      container.style.height = '450px';
+      container.style.borderRadius = '16px';
     };
   
-    // Append the close button to the document body
-    document.body.appendChild(closeButton);
+    // Function to make the widget fullscreen
+    const fullscreenWidget = () => {
+      container.style.width = '100vw';
+      container.style.height = '100vh';
+      container.style.borderRadius = '0';
+      container.style.top = '0';
+      container.style.left = '0';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      isFullscreen = true;
+    };
+  
+    // Function to minimize the widget
+    const minimizeWidget = () => {
+      container.style.width = '60px';
+      container.style.height = '60px';
+      container.style.borderRadius = '50%';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      isMinimized = true;
+      isFullscreen = false;
+    };
+  
+    // Click event listener to toggle between the states: minimize -> expand -> fullscreen
+    container.addEventListener('click', () => {
+      if (isFullscreen) {
+        // If it's fullscreen, minimize
+        minimizeWidget();
+      } else if (isMinimized) {
+        // If it's minimized, expand to chatbot size
+        expandWidget();
+        isMinimized = false;
+      } else {
+        // If it's expanded, go fullscreen
+        fullscreenWidget();
+        isMinimized = false;
+      }
+    });
+  
+    // Optional: Add a right-click event to reset the widget to the minimized state
+    container.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      minimizeWidget();
+    });
   })();
   
