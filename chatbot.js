@@ -1,97 +1,171 @@
-(function() {
-    // Create the main widget container
-    const container = document.createElement('div');
-    container.id = 'chatbot-widget-container';
-    container.style.position = 'fixed';
-    container.style.bottom = '20px';
-    container.style.right = '20px';
-    container.style.width = '60px'; // Initial small size
-    container.style.height = '60px'; // Initial small size
-    container.style.borderRadius = '50%';
-    container.style.overflow = 'hidden';
-    container.style.cursor = 'pointer';
-    container.style.transition = 'all 0.5s ease'; // Smooth transition
-    container.style.zIndex = '9999';
-    container.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.3)';
-    document.body.appendChild(container);
-  
-    // Create the iframe (for the chat interface)
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://thriving-kitten-bf4f11.netlify.app/'; // Replace with your actual iframe URL
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = 'none';
-    iframe.style.transition = 'all 0.5s ease'; // Smooth transition
-    container.appendChild(iframe);
-  
-    // Create the logo image for the initial state
-    const logo = document.createElement('img');
-    logo.src = 'https://example.com/logo.png'; // Replace with your logo
-    logo.style.position = 'absolute';
-    logo.style.top = '50%';
-    logo.style.left = '50%';
-    logo.style.transform = 'translate(-50%, -50%)';
-    logo.style.width = '50px'; // Adjust the size
-    logo.style.height = '50px';
-    logo.style.borderRadius = '50%'; // Round logo
-    logo.style.pointerEvents = 'none'; // Prevent logo click from propagating
-    container.appendChild(logo);
-  
-    // State tracking
-    let isExpanded = false;
-    let isFullscreen = false;
-  
-    // Function to expand the widget to chatbox size
-    const expandWidget = () => {
-      container.style.width = '350px'; // Expanded size
-      container.style.height = '450px'; // Expanded size
-      container.style.borderRadius = '16px'; // Rounded corners
-      logo.style.display = 'none'; // Hide the logo when expanded
-      isExpanded = true;
-    };
-  
-    // Function to make the widget fullscreen
-    const fullscreenWidget = () => {
-      container.style.width = '100vw'; // Fullscreen width
-      container.style.height = '100vh'; // Fullscreen height
-      container.style.borderRadius = '0'; // No border radius
-      container.style.top = '0';
-      container.style.left = '0';
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      isFullscreen = true;
-    };
-  
-    // Function to minimize the widget back to a small circle
-    const minimizeWidget = () => {
-      container.style.width = '60px'; // Minimized size
-      container.style.height = '60px'; // Minimized size
-      container.style.borderRadius = '50%'; // Round shape
-      logo.style.display = 'block'; // Show the logo again
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      isExpanded = false;
-      isFullscreen = false;
-    };
-  
-    // Handle the click event on the widget container
-    container.addEventListener('click', () => {
-      if (isFullscreen) {
-        // If it's fullscreen, minimize it
-        minimizeWidget();
-      } else if (isExpanded) {
-        // If it's expanded, go fullscreen
-        fullscreenWidget();
-      } else {
-        // If it's minimized, expand it to chatbot size
-        expandWidget();
-      }
-    });
-  
-    // Optional: Right-click to minimize (for better user experience)
-    container.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      minimizeWidget();
-    });
-  })();
-  
+(function () {
+  // Inject CSS into the head of the document
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .iframe-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 400px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      transition: all 0.3s ease-in-out;
+    }
+    .iframe-container.maximized {
+      width: 100vw;
+      height: 100vh;
+      bottom: 0;
+      right: 0;
+      border-radius: 0;
+    }
+    .chat-icon {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 32px;
+      cursor: pointer;
+      background: #3498db;
+      border-radius: 50%;
+      padding: 10px;
+    }
+    .chat-window {
+      background: white;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      height: 100%;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .chat-header {
+      padding: 10px;
+      background: #3498db;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+    }
+    .chat-messages {
+      padding: 10px;
+      height: 80%;
+      overflow-y: auto;
+    }
+    .message {
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    .message.user {
+      background: #ecf0f1;
+      text-align: right;
+    }
+    .message.bot {
+      background: #bdc3c7;
+    }
+    .chat-input {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-input input {
+      width: 80%;
+      padding: 5px;
+    }
+    .chat-input button {
+      padding: 5px 10px;
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Create the chatbot component
+  const chatbotContainer = document.createElement('div');
+  chatbotContainer.classList.add('iframe-container');
+  document.body.appendChild(chatbotContainer);
+
+  const chatbot = document.createElement('div');
+  chatbot.classList.add('chat-window');
+  chatbotContainer.appendChild(chatbot);
+
+  const chatHeader = document.createElement('div');
+  chatHeader.classList.add('chat-header');
+  chatHeader.innerHTML = `
+    <span>Chatbot</span>
+    <div>
+      <button class="maximize-btn">🔼</button>
+      <button class="close-btn">✖</button>
+    </div>
+  `;
+  chatbot.appendChild(chatHeader);
+
+  const chatMessages = document.createElement('div');
+  chatMessages.classList.add('chat-messages');
+  chatbot.appendChild(chatMessages);
+
+  const chatInput = document.createElement('div');
+  chatInput.classList.add('chat-input');
+  chatInput.innerHTML = `
+    <input type="text" placeholder="Type a message..." />
+    <button>Send</button>
+  `;
+  chatbot.appendChild(chatInput);
+
+  // Define chatbot logic
+  let isMaximized = false;
+  const messages = [
+    { sender: 'bot', text: 'Hello! How can I help you today?' },
+  ];
+
+  const sendMessage = () => {
+    const inputField = chatInput.querySelector('input');
+    const messageText = inputField.value.trim();
+    if (messageText) {
+      messages.push({ sender: 'user', text: messageText });
+      inputField.value = '';
+
+      const userMessage = document.createElement('div');
+      userMessage.classList.add('message', 'user');
+      userMessage.textContent = messageText;
+      chatMessages.appendChild(userMessage);
+
+      setTimeout(() => {
+        const botMessage = document.createElement('div');
+        botMessage.classList.add('message', 'bot');
+        botMessage.textContent = 'This is an automated response.';
+        chatMessages.appendChild(botMessage);
+      }, 1000);
+    }
+  };
+
+  chatInput.querySelector('button').addEventListener('click', sendMessage);
+
+  // Handle maximize and close buttons
+  const maximizeButton = chatHeader.querySelector('.maximize-btn');
+  const closeButton = chatHeader.querySelector('.close-btn');
+
+  maximizeButton.addEventListener('click', () => {
+    isMaximized = !isMaximized;
+    chatbotContainer.classList.toggle('maximized', isMaximized);
+    maximizeButton.textContent = isMaximized ? '🔽' : '🔼';
+  });
+
+  closeButton.addEventListener('click', () => {
+    chatbotContainer.style.display = 'none'; // Hide the entire chatbot when close is clicked
+  });
+
+  // Show the chat icon
+  const chatIcon = document.createElement('div');
+  chatIcon.classList.add('chat-icon');
+  chatIcon.textContent = '💬';
+  document.body.appendChild(chatIcon);
+
+  // Toggle the chatbot window visibility
+  chatIcon.addEventListener('click', () => {
+    chatbotContainer.style.display = chatbotContainer.style.display === 'none' ? 'block' : 'none';
+  });
+})();
