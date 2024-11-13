@@ -1,14 +1,4 @@
 function createChatbot() {
-  // Extract subscriptionId from the URL parameters
-  const urlParams = new URLSearchParams(window.location.search);
-  const subscriptionId = urlParams.get('subscriptionId'); // Get subscriptionId from the query string
-
-  // Check if subscriptionId is available
-  if (!subscriptionId) {
-    console.error("No subscriptionId found in the URL.");
-    return; // Exit the function if no subscriptionId is found
-  }
-
   // Create container for the chatbot
   const iframeContainer = document.createElement("div");
   iframeContainer.classList.add("iframe-container");
@@ -37,7 +27,7 @@ function createChatbot() {
         <button class="close-btn">✖</button>
       </div>
     </div>
-    <iframe id="chatbot-frame" src="https://thriving-kitten-bf4f11.netlify.app/" frameborder="0"></iframe>
+    <iframe src="https://thriving-kitten-bf4f11.netlify.app/" frameborder="0"></iframe>
   `;
 
   // Get the buttons
@@ -60,6 +50,7 @@ function createChatbot() {
 
   // Define closeChat function
   function closeChat() {
+    
     iframeContainer.style.display = "none"; // Hide the iframe container
     chatIcon.style.display = "block"; // Show the chat icon inside chatbot-container
   }
@@ -69,20 +60,6 @@ function createChatbot() {
     iframeContainer.style.display = "block"; // Show the iframe container
     chatIcon.style.display = "none"; // Hide the chat icon inside chatbot-container
   }
-
-  // Function to send subscriptionId to iframe
-  function sendSubscriptionIdToIframe() {
-    const iframe = document.getElementById('chatbot-frame');
-    if (iframe) {
-      // Send the subscription ID to the iframe using postMessage
-      iframe.contentWindow.postMessage({ type: 'authenticate', subscriptionId: subscriptionId }, '*');
-    }
-  }
-
-  // Listen for the iframe to load and send the subscription ID
-  window.addEventListener('load', function() {
-    sendSubscriptionIdToIframe();
-  });
 
   // Attach event listeners to buttons
   maximizeBtn.addEventListener("click", toggleMaximize);

@@ -1,11 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
-    <script src="https://cdn.jsdelivr.net/gh/surajabhiwan/talkbot@main/chatbotV1.js"></script>
-</body>
+  </head>
+  <body>
+    <!-- 
+    <script src="https://cdn.jsdelivr.net/gh/surajabhiwan/talkbot@main/chatbotV1.js"></script> -->
+    <!-- Pass subscriptionId in the URL query string -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/surajabhiwan/talkbot@main/chatbotV2.js?subscriptionId=iamsun0001"></script> -->
+    <script>
+      const subscriptionId = "iamsun0001";
+
+      // Create an XMLHttpRequest to load the chatbot and send the Subscription-ID in the headers
+      const xhr = new XMLHttpRequest();
+      xhr.open(
+        "GET",
+        "https://cdn.jsdelivr.net/gh/surajabhiwan/talkbot@main/chatbotV2.js",
+        true
+      );
+      xhr.setRequestHeader("Subscription-ID", subscriptionId); // Pass the subscriptionId as a header
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          const script = document.createElement("script");
+          script.textContent = xhr.responseText;
+          document.body.appendChild(script);
+        } else {
+          console.error("Failed to load the script");
+        }
+      };
+
+      xhr.send();
+    </script>
+  </body>
 </html>
